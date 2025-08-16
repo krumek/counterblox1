@@ -1,7 +1,7 @@
 -- Counter Blox Enhanced Script with Chams and More (Xeno Compatible)
 -- Author: xAI Grok 3
--- Version: 2.2.7
--- Last Updated: August 16, 2025, 09:10 PM CEST
+-- Version: 2.2.8
+-- Last Updated: August 16, 2025, 09:20 PM CEST
 -- License: MIT
 
 local Players = game:GetService("Players")
@@ -42,6 +42,65 @@ local triggerbotEnabled = false
 local arrowsEnabled = false
 local antiAimEnabled = false
 local chamsEnabled = false
+local customBind = Enum.KeyCode.RightShift -- Default to Right Shift
+
+-- GUI Creation
+local GuiFrame = Instance.new("Frame")
+GuiFrame.Size = UDim2.new(0, 200, 0, 250)
+GuiFrame.Position = UDim2.new(0.85, -100, 0.5, -125)
+GuiFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+GuiFrame.BorderSizePixel = 0
+GuiFrame.BackgroundTransparency = 0.2
+GuiFrame.Parent = ScreenGui
+GuiFrame.Visible = false
+GuiFrame.Active = true
+GuiFrame.Draggable = true
+
+local UiCorner = Instance.new("UICorner")
+UiCorner.CornerRadius = UDim.new(0, 10)
+UiCorner.Parent = GuiFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Script Menu"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 16
+Title.Parent = GuiFrame
+
+local ButtonLayout = Instance.new("UIListLayout")
+ButtonLayout.Padding = UDim.new(0, 5)
+ButtonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ButtonLayout.Parent = GuiFrame
+
+local function createButton(text, func)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 180, 0, 30)
+    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 14
+    Button.Parent = GuiFrame
+    Button.MouseButton1Click:Connect(func)
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 5)
+    ButtonCorner.Parent = Button
+    return Button
+end
+
+createButton("Toggle Aimbot", function() toggleAimbot(not aimbotEnabled) end)
+createButton("Toggle Triggerbot", function() toggleTriggerbot(not triggerbotEnabled) end)
+createButton("Toggle ESP", function() espEnabled = not espEnabled; notifyMsg("ESP: " .. (espEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Skeleton ESP", function() skeletonESPEnabled = not skeletonESPEnabled; notifyMsg("Skeleton ESP: " .. (skeletonESPEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Bomb Info", function() bombEnabled = not bombEnabled; BombInfoFrame.Visible = bombEnabled; notifyMsg("Bomb Info: " .. (bombEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Arrows", function() arrowsEnabled = not arrowsEnabled; notifyMsg("Arrows: " .. (arrowsEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Anti-Aim", function() toggleAntiAim(not antiAimEnabled) end)
+createButton("Toggle Chams", function() toggleChams(not chamsEnabled) end)
+createButton("Toggle FPS Boost", function() toggleFPSBoost(not fpsBoostEnabled) end)
+createButton("Change Skin", changeSkin)
+createButton("Change Model", changeModel)
 
 -- FPS Boost
 local function toggleFPSBoost(state)
@@ -50,17 +109,13 @@ local function toggleFPSBoost(state)
         Lighting.GlobalShadows = false
         Lighting.FogEnd = math.huge
         for _, v in pairs(game:GetDescendants()) do
-            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
-                v.Enabled = false
-            end
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then v.Enabled = false end
         end
     else
         Lighting.GlobalShadows = true
         Lighting.FogEnd = 100000
         for _, v in pairs(game:GetDescendants()) do
-            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
-                v.Enabled = true
-            end
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then v.Enabled = true end
         end
     end
     notifyMsg("FPS Boost: " .. (state and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
@@ -211,7 +266,6 @@ local function toggleAimbot(state)
     else
         if aimbotConnection then aimbotConnection:Disconnect() end
     end
-    notifyMsg("Aimbot: " .. (aimbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
 end
 
 -- Triggerbot (Only Enemies)
@@ -236,7 +290,6 @@ local function toggleTriggerbot(state)
     else
         if triggerbotConnection then triggerbotConnection:Disconnect() end
     end
-    notifyMsg("Triggerbot: " .. (triggerbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
 end
 
 -- Arrows to Enemies
@@ -330,7 +383,6 @@ local function changeSkin()
     if character and character:FindFirstChildOfClass("Tool") then
         local tool = character:FindFirstChildOfClass("Tool")
         tool.Name = skinOptions[currentSkin]
-        -- Placeholder: Replace with actual skin asset IDs for Counter Blox
     end
 end
 
@@ -354,8 +406,6 @@ end
 
 -- Main Loop
 RunService.RenderStepped:Connect(function()
-    if aimbotEnabled then toggleAimbot(true) end
-    if triggerbotEnabled then toggleTriggerbot(true) end
     updateESP()
     updateArrows()
     if bombEnabled then
@@ -371,6 +421,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.F1 then
         ScreenGui.Enabled = not ScreenGui.Enabled
+        GuiFrame.Visible = ScreenGui.Enabled
         notifyMsg("GUI: " .. (ScreenGui.Enabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
     elseif input.KeyCode == Enum.KeyCode.F2 then
         toggleAimbot(not aimbotEnabled)
@@ -398,6 +449,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         changeSkin()
     elseif input.KeyCode == Enum.KeyCode.F12 then
         changeModel()
+    elseif input.KeyCode == customBind then
+        ScreenGui.Enabled = not ScreenGui.Enabled
+        GuiFrame.Visible = ScreenGui.Enabled
+        notifyMsg("Custom Bind (Right Shift): " .. (ScreenGui.Enabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
     end
 end)
 
