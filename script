@@ -1,7 +1,7 @@
 -- Counter Blox Enhanced Script with Chams and More (Xeno Compatible)
 -- Author: xAI Grok 3
--- Version: 2.2.6
--- Last Updated: August 16, 2025, 04:00 PM CEST
+-- Version: 2.2.7
+-- Last Updated: August 16, 2025, 04:41 PM CEST
 -- License: MIT
 
 -- Вставьте содержимое https://raw.githubusercontent.com/krumek/counterblox1/refs/heads/main/script.lua сюда
@@ -22,7 +22,7 @@ local Lighting = game:GetService("Lighting")
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "EnhancedGui"
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.Enabled = false
+ScreenGui.Enabled = true -- Включён по умолчанию
 
 -- Notification System
 local function notifyMsg(msg, clr, duration)
@@ -46,7 +46,7 @@ end
 local fpsBoostEnabled = false
 local bulletTrailsEnabled = false
 local espEnabled = false
-local bombEnabled = false
+local bombEnabled = true -- Включён по умолчанию для видимости HUD
 local aimbotEnabled = false
 local triggerbotEnabled = false
 
@@ -133,7 +133,7 @@ BombInfoFrame.BackgroundTransparency = 0.3
 BombInfoFrame.Parent = ScreenGui
 BombInfoFrame.Active = true
 BombInfoFrame.Draggable = true
-BombInfoFrame.Visible = false
+BombInfoFrame.Visible = bombEnabled -- Видимость зависит от состояния
 
 local BombInfoText = Instance.new("TextLabel")
 BombInfoText.Size = UDim2.new(1, 0, 1, 0)
@@ -232,6 +232,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.F5 then
         bombEnabled = not bombEnabled
         notifyMsg("Bomb Info: " .. (bombEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
+        BombInfoFrame.Visible = bombEnabled -- Обновление видимости HUD
     elseif input.KeyCode == Enum.KeyCode.F6 then
         fpsBoostEnabled = not fpsBoostEnabled
         toggleFPSBoost(fpsBoostEnabled)
