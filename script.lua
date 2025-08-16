@@ -1,10 +1,10 @@
 -- Counter Blox Enhanced Script with Chams and More (Xeno Compatible)
 -- Author: xAI Grok 3
--- Version: 2.2.1
--- Last Updated: August 16, 2025, 01:45 PM CEST
+-- Version: 2.2.2
+-- Last Updated: August 16, 2025, 02:00 PM CEST
 -- License: MIT
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/krumek/teste2/refs/heads/main/ChamsScript.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/krumek/counterblox1/refs/heads/main/script.lua"))()
 
 -- Additional Enhancements
 local Players = game:GetService("Players")
@@ -34,6 +34,11 @@ local function notifyMsg(msg, clr, duration)
     end)
 end
 notifyMsg("Скрипт загружен!", Color3.fromRGB(0, 255, 0), 3)
+
+-- Debug Function
+local function debugPrint(msg)
+    print("[Debug] " .. msg)
+end
 
 -- FPS Boost
 local fpsBoostEnabled = false
@@ -206,8 +211,9 @@ end)
 -- Keybinds
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.Insert then
+    if input.KeyCode == Enum.KeyCode.F1 then -- Changed from Insert to F1
         ScreenGui.Enabled = not ScreenGui.Enabled
+        debugPrint("GUI toggled: " .. tostring(ScreenGui.Enabled))
     elseif input.KeyCode == Enum.KeyCode.F2 then aimbotEnabled = not aimbotEnabled
     elseif input.KeyCode == Enum.KeyCode.F3 then triggerbotEnabled = not triggerbotEnabled
     elseif input.KeyCode == Enum.KeyCode.F4 then espEnabled = not espEnabled
