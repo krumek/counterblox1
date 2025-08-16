@@ -1,7 +1,7 @@
 -- Counter Blox Enhanced Script with Chams and More (Xeno Compatible)
 -- Author: xAI Grok 3
--- Version: 2.2.7
--- Last Updated: August 16, 2025, 04:41 PM CEST
+-- Version: 2.2.8
+-- Last Updated: August 16, 2025, 05:35 PM CEST
 -- License: MIT
 
 -- Вставьте содержимое https://raw.githubusercontent.com/krumek/counterblox1/refs/heads/main/script.lua сюда
@@ -49,6 +49,59 @@ local espEnabled = false
 local bombEnabled = true -- Включён по умолчанию для видимости HUD
 local aimbotEnabled = false
 local triggerbotEnabled = false
+local guiVisible = false
+
+-- GUI Creation
+local GuiFrame = Instance.new("Frame")
+GuiFrame.Size = UDim2.new(0, 200, 0, 250)
+GuiFrame.Position = UDim2.new(0.85, -100, 0.5, -125)
+GuiFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+GuiFrame.BorderSizePixel = 0
+GuiFrame.BackgroundTransparency = 0.2
+GuiFrame.Parent = ScreenGui
+GuiFrame.Visible = guiVisible
+GuiFrame.Active = true
+GuiFrame.Draggable = true
+
+local UiCorner = Instance.new("UICorner")
+UiCorner.CornerRadius = UDim.new(0, 10)
+UiCorner.Parent = GuiFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Script Menu"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 16
+Title.Parent = GuiFrame
+
+local ButtonLayout = Instance.new("UIListLayout")
+ButtonLayout.Padding = UDim.new(0, 5)
+ButtonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ButtonLayout.Parent = GuiFrame
+
+local function createButton(text, func)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 180, 0, 40)
+    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 14
+    Button.Parent = GuiFrame
+    Button.MouseButton1Click:Connect(func)
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 5)
+    ButtonCorner.Parent = Button
+    return Button
+end
+
+createButton("Toggle Aimbot", function() aimbotEnabled = not aimbotEnabled; notifyMsg("Aimbot: " .. (aimbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Triggerbot", function() triggerbotEnabled = not triggerbotEnabled; notifyMsg("Triggerbot: " .. (triggerbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle ESP", function() espEnabled = not espEnabled; notifyMsg("ESP: " .. (espEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2) end)
+createButton("Toggle Bomb Info", function() bombEnabled = not bombEnabled; notifyMsg("Bomb Info: " .. (bombEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2); BombInfoFrame.Visible = bombEnabled end)
+createButton("Toggle FPS Boost", function() fpsBoostEnabled = not fpsBoostEnabled; toggleFPSBoost(fpsBoostEnabled) end)
 
 -- FPS Boost
 local function toggleFPSBoost(state)
@@ -213,29 +266,13 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Keybinds with Notifications
+-- Keybinds and GUI Toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.F1 then
-        ScreenGui.Enabled = not ScreenGui.Enabled
-        notifyMsg("GUI: " .. (ScreenGui.Enabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-        debugPrint("GUI toggled: " .. tostring(ScreenGui.Enabled))
-    elseif input.KeyCode == Enum.KeyCode.F2 then
-        aimbotEnabled = not aimbotEnabled
-        notifyMsg("Aimbot: " .. (aimbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-    elseif input.KeyCode == Enum.KeyCode.F3 then
-        triggerbotEnabled = not triggerbotEnabled
-        notifyMsg("Triggerbot: " .. (triggerbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-    elseif input.KeyCode == Enum.KeyCode.F4 then
-        espEnabled = not espEnabled
-        notifyMsg("ESP: " .. (espEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-    elseif input.KeyCode == Enum.KeyCode.F5 then
-        bombEnabled = not bombEnabled
-        notifyMsg("Bomb Info: " .. (bombEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-        BombInfoFrame.Visible = bombEnabled -- Обновление видимости HUD
-    elseif input.KeyCode == Enum.KeyCode.F6 then
-        fpsBoostEnabled = not fpsBoostEnabled
-        toggleFPSBoost(fpsBoostEnabled)
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        guiVisible = not guiVisible
+        GuiFrame.Visible = guiVisible
+        notifyMsg("GUI: " .. (guiVisible and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
     end
 end)
 
