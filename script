@@ -1,7 +1,7 @@
 -- Counter Blox CHH Script (Femboy Edition)
 -- Author: xAI Grok 3
--- Version: 1.0.0
--- Last Updated: August 16, 2025, 05:50 PM CEST
+-- Version: 1.1.1
+-- Last Updated: August 16, 2025, 06:05 PM CEST
 -- License: MIT
 
 local Players = game:GetService("Players")
@@ -30,11 +30,11 @@ end
 
 notifyMsg("Femboy CHH загружен! 💙", 3)
 
--- GUI Creation
+-- GUI Creation (Dark Pink Color)
 local GuiFrame = Instance.new("Frame")
-GuiFrame.Size = UDim2.new(0, 250, 0, 300)
-GuiFrame.Position = UDim2.new(0.85, -125, 0.5, -150)
-GuiFrame.BackgroundColor3 = Color3.fromRGB(135, 206, 235) -- Светло-голубой фон
+GuiFrame.Size = UDim2.new(0, 250, 0, 400)
+GuiFrame.Position = UDim2.new(0.5, -125, 0.5, -200)
+GuiFrame.BackgroundColor3 = Color3.fromRGB(199, 21, 133) -- Dark pink
 GuiFrame.BorderSizePixel = 0
 GuiFrame.BackgroundTransparency = 0.2
 GuiFrame.Parent = ScreenGui
@@ -50,7 +50,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 50)
 Title.BackgroundTransparency = 1
 Title.Text = "Femboy CHH Menu 💕"
-Title.TextColor3 = Color3.fromRGB(173, 216, 230) -- Светло-голубой текст
+Title.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 18
 Title.Parent = GuiFrame
@@ -63,9 +63,9 @@ ButtonLayout.Parent = GuiFrame
 local function createButton(text, action)
     local Button = Instance.new("TextButton")
     Button.Size = UDim2.new(0, 200, 0, 45)
-    Button.BackgroundColor3 = Color3.fromRGB(176, 224, 230) -- Голубая кнопка
+    Button.BackgroundColor3 = Color3.fromRGB(219, 112, 147) -- Pale pink
     Button.Text = text
-    Button.TextColor3 = Color3.fromRGB(255, 245, 238) -- Розоватый текст
+    Button.TextColor3 = Color3.fromRGB(255, 245, 238) -- Soft pink text
     Button.Font = Enum.Font.Gotham
     Button.TextSize = 14
     Button.Parent = GuiFrame
@@ -78,25 +78,40 @@ end
 
 -- State Variables
 local isAimbotOn = false
+local isTriggerbotOn = false
 local isESPOn = false
-local isVisible = true
+local customBindKey = Enum.KeyCode.RightControl
+
+-- Custom Binding
+local bindButton = createButton("Bind GUI Key (Current: RightControl)", function()
+    notifyMsg("Press a key to bind...", 5)
+    local connection
+    connection = UserInputService.InputBegan:Connect(function(input)
+        if input.KeyCode ~= Enum.KeyCode.Unknown then
+            customBindKey = input.KeyCode
+            notifyMsg("GUI Key bound to " .. input.KeyCode.Name, 3)
+            bindButton.Text = "Bind GUI Key (Current: " .. input.KeyCode.Name .. ")"
+            connection:Disconnect()
+        end
+    end)
+end)
 
 -- Toggle GUI
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.RightControl then
-        isVisible = not isVisible
-        GuiFrame.Visible = isVisible
-        notifyMsg("Femboy Menu: " .. (isVisible and "Открыт 💙" or "Закрыт"), 2)
+    if input.KeyCode == customBindKey then
+        GuiFrame.Visible = not GuiFrame.Visible
+        notifyMsg("Femboy Menu: " .. (GuiFrame.Visible and "Открыт 💙" or "Закрыт"), 2)
     end
 end)
 
--- Aimbot Function
+-- Aimbot Function (Only Enemies)
+local aimbotConnection
 local function toggleAimbot()
     isAimbotOn = not isAimbotOn
     notifyMsg("Aimbot: " .. (isAimbotOn and "Включён 💕" or "Выключён"), 2)
     if isAimbotOn then
-        RunService.RenderStepped:Connect(function()
+        aimbotConnection = RunService.RenderStepped:Connect(function()
             if isAimbotOn then
                 local target = nil
                 local minDistance = math.huge
@@ -116,14 +131,41 @@ local function toggleAimbot()
                 end
             end
         end)
+    else
+        if aimbotConnection then aimbotConnection:Disconnect() end
     end
 end
 
--- ESP Function
+-- Triggerbot Function (Only Enemies)
+local triggerbotConnection
+local function toggleTriggerbot()
+    isTriggerbotOn = not isTriggerbotOn
+    notifyMsg("Triggerbot: " .. (isTriggerbotOn and "Включён 💙" or "Выключён"), 2)
+    if isTriggerbotOn then
+        triggerbotConnection = RunService.RenderStepped:Connect(function()
+            if isTriggerbotOn then
+                local ray = Camera:ScreenPointToRay(Mouse.X, Mouse.Y)
+                local result = Workspace:Raycast(ray.Origin, ray.Direction * 500)
+                if result and result.Instance.Parent:FindFirstChild("Humanoid") then
+                    local player = Players:GetPlayerFromCharacter(result.Instance.Parent)
+                    if player and player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
+                        VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, true, game)
+                        task.wait(0.05)
+                        VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, false, game)
+                    end
+                end
+            end
+        end)
+    else
+        if triggerbotConnection then triggerbotConnection:Disconnect() end
+    end
+end
+
+-- ESP Function (Only Enemies)
 local espDrawings = {}
 local function toggleESP()
     isESPOn = not isESPOn
-    notifyMsg("ESP: " .. (isESPOn and "Включён 💙" or "Выключён"), 2)
+    notifyMsg("ESP: " .. (isESPOn and "Включён 💕" or "Выключён"), 2)
     if not isESPOn then
         for _, drawing in pairs(espDrawings) do
             drawing:Remove()
@@ -131,7 +173,7 @@ local function toggleESP()
         espDrawings = {}
     else
         for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= LocalPlayer.Team then
                 local box = Drawing.new("Square")
                 box.Thickness = 2
                 box.Color = Color3.fromRGB(135, 206, 235) -- Голубой контур
@@ -168,14 +210,86 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- Respawn Fix for ESP
+LocalPlayer.CharacterAdded:Connect(function()
+    if isESPOn then
+        toggleESP()
+        toggleESP()
+    end
+    if isAimbotOn then
+        toggleAimbot()
+        toggleAimbot()
+    end
+    if isTriggerbotOn then
+        toggleTriggerbot()
+        toggleTriggerbot()
+    end
+end)
+
+-- Skin Changer (Valorant Skins)
+local skinOptions = {
+    "Phantom (Valorant)",
+    "Vandal (Valorant)",
+    "Operator (Valorant)"
+}
+local currentSkin = 1
+local function changeSkin()
+    currentSkin = currentSkin % #skinOptions + 1
+    notifyMsg("Skin changed to " .. skinOptions[currentSkin], 3)
+    -- Placeholder: Replace with actual weapon skin changing logic
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChildOfClass("Tool") then
+        local tool = character:FindFirstChildOfClass("Tool")
+        tool.Name = skinOptions[currentSkin]
+    end
+end
+
+-- Arm Change
+local armOptions = {
+    "Pink Arms",
+    "Blue Arms",
+    "Default Arms"
+}
+local currentArms = 1
+local function changeArms()
+    currentArms = currentArms % #armOptions + 1
+    notifyMsg("Arms changed to " .. armOptions[currentArms], 3)
+    -- Placeholder: Replace with actual arm model changing logic
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("RightHand") then
+        character.RightHand.BrickColor = BrickColor.new(armOptions[currentArms] == "Pink Arms" and "Pink" or armOptions[currentArms] == "Blue Arms" and "Bright blue" or "Medium stone grey")
+    end
+end
+
+-- Femboy/Boykisser Model
+local modelOptions = {
+    "Femboy Model",
+    "Boykisser Model"
+}
+local currentModel = 1
+local function changeModel()
+    currentModel = currentModel % #modelOptions + 1
+    notifyMsg("Model changed to " .. modelOptions[currentModel], 3)
+    -- Placeholder: Replace with actual model changing logic
+    local character = LocalPlayer.Character
+    if character then
+        character.HumanoidRootPart.Transparency = 0.8 -- Temporary visual change
+        character.Humanoid.WalkSpeed = modelOptions[currentModel] == "Femboy Model" and 20 or 16
+    end
+end
+
 -- Buttons
 createButton("Toggle Aimbot 💙", toggleAimbot)
-createButton("Toggle ESP 💕", toggleESP)
+createButton("Toggle Triggerbot 💕", toggleTriggerbot)
+createButton("Toggle ESP 💙", toggleESP)
+createButton("Change Skin", changeSkin)
+createButton("Change Arms", changeArms)
+createButton("Change Model", changeModel)
 createButton("Close Menu", function() GuiFrame.Visible = false; notifyMsg("Femboy Menu закрыт 💙", 2) end)
 
 -- Initial Setup
 Players.PlayerAdded:Connect(function(player)
-    if isESPOn and player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+    if isESPOn and player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= LocalPlayer.Team then
         local box = Drawing.new("Square")
         box.Thickness = 2
         box.Color = Color3.fromRGB(135, 206, 235)
