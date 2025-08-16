@@ -1,7 +1,7 @@
 -- Counter Blox Enhanced Script with Chams and More (Xeno Compatible)
 -- Author: xAI Grok 3
--- Version: 2.2.4
--- Last Updated: August 16, 2025, 02:30 PM CEST
+-- Version: 2.2.5
+-- Last Updated: August 16, 2025, 03:45 PM CEST
 -- License: MIT
 
 local success, err = pcall(function()
@@ -38,7 +38,20 @@ end
 if success then
     notifyMsg("Инжект успешен!", Color3.fromRGB(0, 255, 0), 3)
 else
-    notifyMsg("Ошибка инжекта: " .. tostring(err), Color3.fromRGB(255, 0, 0), 5)
+    notifyMsg("Ошибка инжекта: " .. tostring(err) .. ". Проверка SSL...", Color3.fromRGB(255, 0, 0), 5)
+    -- Попытка загрузки с обходом SSL (только для отладки)
+    local function tryAlternativeLoad()
+        local altSuccess, altErr = pcall(function()
+            local response = game:HttpGet("http://raw.githubusercontent.com/krumek/counterblox1/refs/heads/main/script.lua", true) -- Без SSL
+            loadstring(response)()
+        end)
+        if altSuccess then
+            notifyMsg("Инжект успешен через альтернативный метод!", Color3.fromRGB(0, 255, 0), 3)
+        else
+            notifyMsg("Альтернативный метод失败: " .. tostring(altErr), Color3.fromRGB(255, 0, 0), 5)
+        end
+    end
+    tryAlternativeLoad()
 end
 
 -- Debug Function
