@@ -1,317 +1,248 @@
--- Additional Enhancements
+-- Counter Blox Femboy CHH Script
+-- Author: xAI Grok 3
+-- Version: 1.0.0
+-- Last Updated: August 16, 2025
+-- License: MIT
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
 local Workspace = game:GetService("Workspace")
-local Lighting = game:GetService("Lighting")
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "EnhancedGui"
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.Enabled = false
+
 -- Notification System
-local function notifyMsg(msg, clr, duration)
-pcall(function()
-StarterGui:SetCore("SendNotification", {
-Title = "Enhanced Script",
-Text = msg,
-Duration = duration or 3
-})
-end)
+local function notifyMsg(msg, duration)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "Femboy CHH",
+            Text = msg,
+            Duration = duration or 3
+        })
+    end)
 end
-notifyMsg("Скрипт загружен!", Color3.fromRGB(0, 255, 0), 3)
+
+notifyMsg("Femboy CHH загружен! 💙", 3)
+
+-- GUI Creation (Dark Pink Color)
+local GuiFrame = Instance.new("Frame")
+GuiFrame.Size = UDim2.new(0, 250, 0, 300)
+GuiFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
+GuiFrame.BackgroundColor3 = Color3.fromRGB(199, 21, 133) -- Dark pink
+GuiFrame.BorderSizePixel = 0
+GuiFrame.BackgroundTransparency = 0.2
+GuiFrame.Parent = ScreenGui
+GuiFrame.Visible = true
+GuiFrame.Active = true
+GuiFrame.Draggable = true
+
+local UiCorner = Instance.new("UICorner")
+UiCorner.CornerRadius = UDim.new(0, 15)
+UiCorner.Parent = GuiFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.BackgroundTransparency = 1
+Title.Text = "Femboy CHH Menu 💕"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = GuiFrame
+
+local ButtonLayout = Instance.new("UIListLayout")
+ButtonLayout.Padding = UDim.new(0, 10)
+ButtonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ButtonLayout.Parent = GuiFrame
+
+local function createButton(text, action)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 200, 0, 45)
+    Button.BackgroundColor3 = Color3.fromRGB(219, 112, 147) -- Pale pink
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 245, 238) -- Soft pink text
+    Button.Font = Enum.Font.Gotham
+    Button.TextSize = 14
+    Button.Parent = GuiFrame
+    Button.MouseButton1Click:Connect(action)
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = Button
+    return Button
+end
+
 -- State Variables
-local fpsBoostEnabled = false
-local bulletTrailsEnabled = false
-local bombEnabled = false
-local aimbotEnabled = false
-local triggerbotEnabled = false
-local arrowsEnabled = false
-local antiAimEnabled = false
-local chamsEnabled = false
--- FPS Boost
-local function toggleFPSBoost(state)
-fpsBoostEnabled = state
-if state then
-Lighting.GlobalShadows = false
-Lighting.FogEnd = math.huge
-for _, v in pairs(game:GetDescendants()) do
-if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then v.Enabled = false end
-end
-else
-Lighting.GlobalShadows = true
-Lighting.FogEnd = 100000
-for _, v in pairs(game:GetDescendants()) do
-if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then v.Enabled = true end
-end
-end
-notifyMsg("FPS Boost: " .. (state and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-end
--- Bullet Trails (Only Local Player)
-local bulletTrails = {}
-local function createBulletTrail(startPos, endPos)
-if bulletTrailsEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local shooter = LocalPlayer.Character.HumanoidRootPart
-if (startPos - shooter.Position).Magnitude < 10 then
-local trail = Instance.new("Part")
-trail.Size = Vector3.new(0.1, 0.1, (startPos - endPos).Magnitude)
-trail.Position = (startPos + endPos) / 2
-trail.CFrame = CFrame.lookAt(startPos, endPos) * CFrame.new(0, 0, -trail.Size.Z / 2)
-trail.Anchored = true
-trail.CanCollide = false
-trail.BrickColor = BrickColor.new("Bright red")
-trail.Material = Enum.Material.Neon
-trail.Parent = Workspace
-table.insert(bulletTrails, trail)
-task.wait(5)
-trail:Destroy()
-end
-end
-end
--- Bomb Info HUD
-local BombInfoFrame = Instance.new("Frame")
-BombInfoFrame.Size = UDim2.new(0, 200, 0, 50)
-BombInfoFrame.Position = UDim2.new(0.5, -100, 0, 10)
-BombInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-BombInfoFrame.BorderSizePixel = 0
-BombInfoFrame.BackgroundTransparency = 0.3
-BombInfoFrame.Parent = ScreenGui
-BombInfoFrame.Active = true
-BombInfoFrame.Draggable = true
-BombInfoFrame.Visible = false
-local BombInfoText = Instance.new("TextLabel")
-BombInfoText.Size = UDim2.new(1, 0, 1, 0)
-BombInfoText.BackgroundTransparency = 1
-BombInfoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-BombInfoText.Font = Enum.Font.SourceSans
-BombInfoText.TextSize = 14
-BombInfoText.Text = "Bomb: No Info"
-BombInfoText.Parent = BombInfoFrame
-local function updateBombInfo()
-local bomb = Workspace:FindFirstChild("Bomb") or Workspace:FindFirstChild("planted_c4")
-if bomb then
-if bomb.Parent:FindFirstChild("Humanoid") then
-local carrier = Players:GetPlayerFromCharacter(bomb.Parent)
-BombInfoText.Text = "Bomb: Carrier - " .. (carrier and carrier.Name or "Unknown")
-BombInfoText.TextColor3 = Color3.fromRGB(0, 255, 0)
-else
-BombInfoText.Text = "Bomb: Planted"
-BombInfoText.TextColor3 = Color3.fromRGB(255, 0, 0)
-end
-else
-BombInfoText.Text = "Bomb: No Info"
-BombInfoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-end
-end
--- Aimbot (Only Enemies)
-local function toggleAimbot(state)
-aimbotEnabled = state
-if aimbotEnabled then
-aimbotConnection = RunService.RenderStepped:Connect(function()
-if aimbotEnabled then
-local target = nil
-local minDistance = math.huge
-for _, player in ipairs(Players:GetPlayers()) do
-if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") and player.Team ~= LocalPlayer.Team then
-local head = player.Character.Head
-local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position)
-local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
-if onScreen and distance < minDistance then
-minDistance = distance
-target = head
-end
-end
-end
-if target then
-Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
-end
-end
+local isAimbotOn = false
+local isTriggerbotOn = false
+local isESPOn = false
+local customBindKey = Enum.KeyCode.RightControl
+
+-- Custom Binding
+local bindButton = createButton("Bind GUI Key (Current: RightControl)", function()
+    notifyMsg("Press a key to bind...", 5)
+    local connection
+    connection = UserInputService.InputBegan:Connect(function(input)
+        if input.KeyCode ~= Enum.KeyCode.Unknown then
+            customBindKey = input.KeyCode
+            notifyMsg("GUI Key bound to " .. input.KeyCode.Name, 3)
+            bindButton.Text = "Bind GUI Key (Current: " .. input.KeyCode.Name .. ")"
+            connection:Disconnect()
+        end
+    end)
 end)
-else
-if aimbotConnection then aimbotConnection:Disconnect() end
-end
-notifyMsg("Aimbot: " .. (aimbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-end
--- Triggerbot (Only Enemies)
-local triggerbotConnection
-local function toggleTriggerbot(state)
-triggerbotEnabled = state
-if triggerbotEnabled then
-triggerbotConnection = RunService.RenderStepped:Connect(function()
-if triggerbotEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local ray = Camera:ScreenPointToRay(Mouse.X, Mouse.Y)
-local result = Workspace:Raycast(ray.Origin, ray.Direction * 500)
-if result and result.Instance.Parent:FindFirstChild("Humanoid") then
-local player = Players:GetPlayerFromCharacter(result.Instance.Parent)
-if player and player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
-game:GetService("VirtualInputManager"):SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, true, game)
-task.wait(0.01)
-game:GetService("VirtualInputManager"):SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, false, game)
-end
-end
-end
-end)
-else
-if triggerbotConnection then triggerbotConnection:Disconnect() end
-end
-notifyMsg("Triggerbot: " .. (triggerbotEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-end
--- Arrows to Enemies
-local arrowDrawings = {}
-local function updateArrows()
-if arrowsEnabled then
-for _, player in ipairs(Players:GetPlayers()) do
-if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= LocalPlayer.Team then
-if not arrowDrawings[player] then
-local arrow = Drawing.new("Triangle")
-arrow.Filled = true
-arrow.Color = Color3.fromRGB(255, 0, 0)
-arrow.Thickness = 1
-arrowDrawings[player] = arrow
-end
-local root = player.Character.HumanoidRootPart
-local screenPos, onScreen = Camera:WorldToViewportPoint(root.Position)
-if not onScreen then
-local direction = (root.Position - Camera.CFrame.Position).Unit
-local angle = math.atan2(direction.Z, direction.X)
-local arrowSize = 20
-local x = Camera.ViewportSize.X / 2 + math.cos(angle) * (Camera.ViewportSize.X / 2 - 50)
-local y = Camera.ViewportSize.Y / 2 + math.sin(angle) * (Camera.ViewportSize.Y / 2 - 50)
-arrowDrawings[player].Visible = true
-arrowDrawings[player].Points = {
-Vector2.new(x, y - arrowSize),
-Vector2.new(x - arrowSize / 2, y + arrowSize),
-Vector2.new(x + arrowSize / 2, y + arrowSize)
-}
-else
-arrowDrawings[player].Visible = false
-end
-elseif arrowDrawings[player] then
-arrowDrawings[player]:Remove()
-arrowDrawings[player] = nil
-end
-end
-else
-for player, arrow in pairs(arrowDrawings) do
-arrow:Remove()
-arrowDrawings[player] = nil
-end
-end
-end
--- Anti-Aim
-local antiAimConnection
-local function toggleAntiAim(state)
-antiAimEnabled = state
-if antiAimEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-antiAimConnection = RunService.RenderStepped:Connect(function()
-if antiAimEnabled then
-local root = LocalPlayer.Character.HumanoidRootPart
-root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(90), 0)
-end
-end)
-else
-if antiAimConnection then antiAimConnection:Disconnect() end
-end
-notifyMsg("Anti-Aim: " .. (antiAimEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-end
--- Chams
-local function toggleChams(state)
-chamsEnabled = state
-for _, player in ipairs(Players:GetPlayers()) do
-if player ~= LocalPlayer and player.Character then
-for _, part in pairs(player.Character:GetDescendants()) do
-if part:IsA("BasePart") then
-if chamsEnabled then
-part.Material = Enum.Material.Neon
-part.Color = Color3.fromRGB(0, 255, 0)
-else
-part.Material = Enum.Material.SmoothPlastic
-part.Color = part.BrickColor.Color
-end
-end
-end
-end
-end
-notifyMsg("Chams: " .. (chamsEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-end
--- Skin Changer
-local skinOptions = {"Default", "Phantom", "Vandal"}
-local currentSkin = 1
-local function changeSkin()
-currentSkin = currentSkin % #skinOptions + 1
-notifyMsg("Skin changed to " .. skinOptions[currentSkin], Color3.fromRGB(0, 255, 0), 2)
-local character = LocalPlayer.Character
-if character and character:FindFirstChildOfClass("Tool") then
-local tool = character:FindFirstChildOfClass("Tool")
-tool.Name = skinOptions[currentSkin]
--- Placeholder: Replace with actual skin asset IDs
-end
-end
--- Model Changer
-local modelOptions = {"Default", "Femboy"}
-local currentModel = 1
-local function changeModel()
-currentModel = currentModel % #modelOptions + 1
-notifyMsg("Model changed to " .. modelOptions[currentModel], Color3.fromRGB(0, 255, 0), 2)
-local character = LocalPlayer.Character
-if character then
-if modelOptions[currentModel] == "Femboy" then
-character.HumanoidRootPart.Transparency = 0.5
-character.Humanoid.WalkSpeed = 20
-else
-character.HumanoidRootPart.Transparency = 0
-character.Humanoid.WalkSpeed = 16
-end
-end
-end
--- Main Loop
-RunService.RenderStepped:Connect(function()
-updateESP()
-updateArrows()
-if bombEnabled then
-BombInfoFrame.Visible = true
-updateBombInfo()
-else
-BombInfoFrame.Visible = false
-end
-end)
--- Keybinds with Notifications
+
+-- Toggle GUI
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-if gameProcessed then return end
-if input.KeyCode == Enum.KeyCode.F1 then
-ScreenGui.Enabled = not ScreenGui.Enabled
-notifyMsg("GUI: " .. (ScreenGui.Enabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-elseif input.KeyCode == Enum.KeyCode.F2 then
-toggleAimbot(not aimbotEnabled)
-elseif input.KeyCode == Enum.KeyCode.F3 then
-toggleTriggerbot(not triggerbotEnabled)
-elseif input.KeyCode == Enum.KeyCode.F4 then
-espEnabled = not espEnabled
-notifyMsg("ESP: " .. (espEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-elseif input.KeyCode == Enum.KeyCode.F5 then
-skeletonESPEnabled = not skeletonESPEnabled
-notifyMsg("Skeleton ESP: " .. (skeletonESPEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-elseif input.KeyCode == Enum.KeyCode.F6 then
-bombEnabled = not bombEnabled
-notifyMsg("Bomb Info: " .. (bombEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-elseif input.KeyCode == Enum.KeyCode.F7 then
-arrowsEnabled = not arrowsEnabled
-notifyMsg("Arrows: " .. (arrowsEnabled and "Включён" or "Выключен"), Color3.fromRGB(0, 255, 0), 2)
-elseif input.KeyCode == Enum.KeyCode.F8 then
-toggleAntiAim(not antiAimEnabled)
-elseif input.KeyCode == Enum.KeyCode.F9 then
-toggleChams(not chamsEnabled)
-elseif input.KeyCode == Enum.KeyCode.F10 then
-toggleFPSBoost(not fpsBoostEnabled)
-elseif input.KeyCode == Enum.KeyCode.F11 then
-changeSkin()
-elseif input.KeyCode == Enum.KeyCode.F12 then
-changeModel()
-end
+    if gameProcessed then return end
+    if input.KeyCode == customBindKey then
+        GuiFrame.Visible = not GuiFrame.Visible
+        notifyMsg("Femboy Menu: " .. (GuiFrame.Visible and "Открыт 💙" or "Закрыт"), 2)
+    end
 end)
+
+-- Aimbot Function (Only Enemies)
+local aimbotConnection
+local function toggleAimbot()
+    isAimbotOn = not isAimbotOn
+    notifyMsg("Aimbot: " .. (isAimbotOn and "Включён 💕" or "Выключён"), 2)
+    if isAimbotOn then
+        aimbotConnection = RunService.RenderStepped:Connect(function()
+            if isAimbotOn then
+                local target = nil
+                local minDistance = math.huge
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") and player.Team ~= LocalPlayer.Team then
+                        local head = player.Character.Head
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                        local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+                        if onScreen and distance < minDistance then
+                            minDistance = distance
+                            target = head
+                        end
+                    end
+                end
+                if target then
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
+                end
+            end
+        end)
+    else
+        if aimbotConnection then aimbotConnection:Disconnect() end
+    end
+end
+
+-- Triggerbot Function (Only Enemies)
+local triggerbotConnection
+local function toggleTriggerbot()
+    isTriggerbotOn = not isTriggerbotOn
+    notifyMsg("Triggerbot: " .. (isTriggerbotOn and "Включён 💙" or "Выключён"), 2)
+    if isTriggerbotOn then
+        triggerbotConnection = RunService.RenderStepped:Connect(function()
+            if isTriggerbotOn then
+                local ray = Camera:ScreenPointToRay(Mouse.X, Mouse.Y)
+                local result = Workspace:Raycast(ray.Origin, ray.Direction * 500)
+                if result and result.Instance.Parent:FindFirstChild("Humanoid") then
+                    local player = Players:GetPlayerFromCharacter(result.Instance.Parent)
+                    if player and player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
+                        VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, true, game)
+                        task.wait(0.05)
+                        VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, false, game)
+                    end
+                end
+            end
+        end)
+    else
+        if triggerbotConnection then triggerbotConnection:Disconnect() end
+    end
+end
+
+-- ESP Function (Only Enemies)
+local espDrawings = {}
+local function toggleESP()
+    isESPOn = not isESPOn
+    notifyMsg("ESP: " .. (isESPOn and "Включён 💙" or "Выключён"), 2)
+    if not isESPOn then
+        for _, drawing in pairs(espDrawings) do
+            drawing:Remove()
+        end
+        espDrawings = {}
+    else
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= LocalPlayer.Team then
+                local box = Drawing.new("Square")
+                box.Thickness = 2
+                box.Color = Color3.fromRGB(135, 206, 235) -- Голубой контур
+                box.Filled = false
+                espDrawings[player] = box
+                player.CharacterRemoving:Connect(function()
+                    if espDrawings[player] then
+                        espDrawings[player]:Remove()
+                        espDrawings[player] = nil
+                    end
+                end)
+            end
+        end
+    end
+end
+
+-- Update ESP
+RunService.RenderStepped:Connect(function()
+    if isESPOn then
+        for player, box in pairs(espDrawings) do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local root = player.Character.HumanoidRootPart
+                local headPos, onScreen = Camera:WorldToViewportPoint(root.Position + Vector3.new(0, 3, 0))
+                local footPos = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
+                if onScreen then
+                    box.Visible = true
+                    box.Size = Vector2.new(2000 / headPos.Z, footPos.Y - headPos.Y)
+                    box.Position = Vector2.new(headPos.X - box.Size.X / 2, headPos.Y)
+                else
+                    box.Visible = false
+                end
+            end
+        end
+    end
+end)
+
+-- Buttons
+createButton("Toggle Aimbot 💙", toggleAimbot)
+createButton("Toggle Triggerbot 💕", toggleTriggerbot)
+createButton("Toggle ESP 💙", toggleESP)
+createButton("Change Skin", changeSkin)
+createButton("Change Arms", changeArms)
+createButton("Change Model", changeModel)
+createButton("Close Menu", function() GuiFrame.Visible = false; notifyMsg("Femboy Menu закрыт 💙", 2) end)
+
+-- Respawn Fix for ESP
+LocalPlayer.CharacterAdded:Connect(function()
+    if isESPOn then
+        toggleESP()
+        toggleESP()
+    end
+    if isAimbotOn then
+        toggleAimbot()
+        toggleAimbot()
+    end
+    if isTriggerbotOn then
+        toggleTriggerbot()
+        toggleTriggerbot()
+    end
+end)
+
 -- Initial Setup
-Players.PlayerAdded:Connect(function(player) addESP(player) end)
-for _, player in ipairs(Players:GetPlayers()) do addESP(player) end
+Players.PlayerAdded:Connect(function(player)
+    if isESPOn and player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= LocalPlayer.Team then
+        local box = Drawing.new("Square")
+        box.Thickness = 2
+        box.Color = Color3.fromRGB(135, 206, 235)
+        box.Filled = false
+        espDrawings[player] = box
+        player.CharacterRemoving:Connect(function()
+            if espDrawings[player] then
+                espDrawings[player]:Remove()
+                espDrawings[player] = nil
+            end
+        end)
+    end
+end)
